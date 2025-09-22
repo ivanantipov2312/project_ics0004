@@ -29,7 +29,7 @@ void print_menu() {
 
 void clear_buffer() {
     int buffer;
-    while ((buffer = getchar()) != '\n' && buffer != EOF) {};
+    while ((buffer = getchar()) != '\n' && buffer != EOF);
 }
 
 void main_loop() {
@@ -39,11 +39,11 @@ void main_loop() {
         printf("Your option: ");
         int option = 0;
         
-        if (scanf_s("%d", &option) != 1) {
+        if (scanf("%d", &option) != 1) {
             printf("Invalid input. Valid options are 1-4!\n");
             clear_buffer();
-            continue;
-        }
+			continue;
+		}
 
         if (option == 1) {
             print_purchase_submenu();
