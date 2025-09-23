@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-#include <stdio.h>
-
 int in_menu = 1;
 int in_purchase = 0;
 int in_return = 0;
