@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+// Menu tracking
 int in_menu = 1;
 int in_purchase = 0;
 int in_return = 0;
@@ -24,6 +25,7 @@ void print_report_submenu() {
     printf("------------------------\n");
 }
 
+// main menu
 void print_menu() {
     printf("------------------------\n");
     printf("1. See the purchases.\n");
@@ -33,6 +35,7 @@ void print_menu() {
     printf("------------------------\n");
 }
 
+// buffer clear function to fix bug with non-integer input
 void clear_buffer() {
     int buffer;
     while ((buffer = getchar()) != '\n' && buffer != EOF);
@@ -46,12 +49,13 @@ void main_loop() {
             printf("Your option: ");
             int option = 0;
 
+            // If input isn't integer - clears buffer; part of non-integer input bugfix
             if (scanf("%d", &option) != 1) {
                 printf("Invalid input. Valid options are 1-4!\n");
                 clear_buffer();
                 continue;
             }
-
+            // main menu options
             if (option == 1) {
                 in_menu = 0;
                 in_purchase = 1;
@@ -74,6 +78,7 @@ void main_loop() {
             }
         }
 
+        // purchase submenu
         while (in_purchase == 1) {
             print_purchase_submenu();
             printf("Your option: ");
@@ -94,6 +99,7 @@ void main_loop() {
             }
         }
 
+        // returns submenu
         while (in_return == 1) {
             print_return_submenu();
             printf("Your option: ");
@@ -110,6 +116,8 @@ void main_loop() {
                 in_menu = 1;
             }
         }
+
+        // report submenu
         while (in_report == 1) {
             print_report_submenu();
             printf("Your option: ");
@@ -128,6 +136,8 @@ void main_loop() {
         }
     }
 }
+
+// goes to main loop, returns 0 if loop is broken with input "4" in main menu
 int main(void) {
     main_loop();
     return 0;
