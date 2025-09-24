@@ -1,12 +1,5 @@
 #include <stdio.h>
 
-// Menu tracking
-int in_menu = 1;
-int in_purchase = 0;
-int in_return = 0;
-int in_report = 0;
-int is_on = 1;
-
 void print_purchase_submenu() {
     printf("--------PURCHASES-------\n");
     printf("1. Go back to menu.\n");
