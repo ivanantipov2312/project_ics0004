@@ -8,26 +8,26 @@ int in_report = 0;
 int is_on = 1;
 
 void print_purchase_submenu() {
-    printf("------------------------\n");
+    printf("--------PURCHASES-------\n");
     printf("1. Go back to menu.\n");
     printf("------------------------\n");
 }
 
 void print_return_submenu() {
-    printf("------------------------\n");
+    printf("---------RETURNS--------\n");
     printf("1. Go back to menu.\n");
     printf("------------------------\n");
 }
 
 void print_report_submenu() {
-    printf("------------------------\n");
+    printf("----------REPORT--------\n");
     printf("1. Go back to menu.\n");
     printf("------------------------\n");
 }
 
 // main menu
 void print_menu() {
-    printf("------------------------\n");
+    printf("-----------MAIN---------\n");
     printf("1. See the purchases.\n");
     printf("2. See the returns.\n");
     printf("3. Manage the current day report.\n");
@@ -41,98 +41,43 @@ void clear_buffer() {
     while ((buffer = getchar()) != '\n' && buffer != EOF);
 }
 
+// Get an in-bounds integer input
+int get_valid_option(int option_min, int option_max) {
+    int option;
+    while (1) {
+        printf("Your option: ");
+
+        // If input is not an integer or it is smaller than minimum option or it is bigger that maximum option, continue
+        if (scanf("%d", &option) != 1 || option < option_min || option > option_max) {
+            printf("Invalid input. Valid options are %d-%d.\n", option_min, option_max);
+            clear_buffer();
+            continue;
+        }
+
+        // If our check doesn't pass, break the loop
+        break;
+    }
+    return option;
+}
+
 void main_loop() {
-    while (is_on == 1) {
-        while (in_menu == 1) {
-            print_menu();
+    while (1) {
+        print_menu();
+        int option = get_valid_option(1, 4);
 
-            printf("Your option: ");
-            int option = 0;
-
-            // If input isn't integer - clears buffer; part of non-integer input bugfix
-            if (scanf("%d", &option) != 1) {
-                printf("Invalid input. Valid options are 1-4!\n");
-                clear_buffer();
-                continue;
-            }
-            // main menu options
-            if (option == 1) {
-                in_menu = 0;
-                in_purchase = 1;
-            }
-            else if (option == 2) {
-                in_menu = 0;
-                in_return = 1;
-            }
-            else if (option == 3) {
-                in_menu = 0;
-                in_report = 1;
-            }
-            else if (option == 4) {
-                is_on = 0;
-                printf("Goodbye");
-                break;
-            }
-            else {
-                printf("Invalid input. Valid options are 1-4!\n");
-            }
-        }
-
-        // purchase submenu
-        while (in_purchase == 1) {
+        // main menu options
+        if (option == 1) {
             print_purchase_submenu();
-            printf("Your option: ");
-            int option = 0;
-
-            if (scanf("%d", &option) != 1) {
-                printf("Invalid input. The only valid option is 1!\n");
-                clear_buffer();
-                continue;
-            }
-
-            if (option == 1) {
-                in_menu = 1;
-                in_purchase = 0;
-            }
-            else {
-                printf("Invalid input. The only valid option is 1!\n");
-            }
-        }
-
-        // returns submenu
-        while (in_return == 1) {
+            while ((option = get_valid_option(1, 1)) != 1);
+        } else if (option == 2) {
             print_return_submenu();
-            printf("Your option: ");
-            int option = 0;
-
-            if (scanf("%d", &option) != 1) {
-                printf("Invalid input. The only valid option is 1!\n");
-                clear_buffer();
-                continue;
-            }
-
-            if (option == 1) {
-                in_return = 0;
-                in_menu = 1;
-            }
-        }
-
-        // report submenu
-        while (in_report == 1) {
+            while ((option = get_valid_option(1, 1)) != 1);
+        } else if (option == 3) {
             print_report_submenu();
-            printf("Your option: ");
-            int option = 0;
-
-            if (scanf("%d", &option) != 1) {
-                printf("Invalid input. The only valid option is 1!\n");
-                clear_buffer();
-                continue;
-            }
-
-            if (option == 1) {
-                in_report = 0;
-                in_menu = 1;
-            }
+            while ((option = get_valid_option(1, 1)) != 1);
+        } else if (option == 4) {
+            printf("Goodbye!\n");
+            break;
         }
     }
 }
