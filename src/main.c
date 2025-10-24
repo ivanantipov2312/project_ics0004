@@ -42,6 +42,7 @@ struct Record* record_new(uint32_t id, const char* destination, const char* date
 	return rec;
 }
 
+// Free all the memory behind the record
 void record_free(struct Record* rec) {
 	if (rec) {
 		rec->id = 0;
@@ -75,16 +76,19 @@ void record_print(struct Record* rec) {
 struct RecordQueue {
 	struct Record* head;
 	struct Record* tail;
+	uint32_t nextID;
 };
 
 // Add the item to the end
-void queue_push(struct RecordQueue* q, uint32_t id, const char* destination, const char* date, const char* type_of_coach, bool available) {
+void queue_push(struct RecordQueue* q, const char* destination, const char* date, const char* type_of_coach, bool available) {
 	if (!q->head) {
-		q->head = q->tail = record_new(id, destination, date, type_of_coach, available);
+		q->head = q->tail = record_new(q->nextID, destination, date, type_of_coach, available);
+		q->nextID++;
 		return;
 	}
 
-	struct Record* tmp = record_new(id, destination, date, type_of_coach, available);
+	struct Record* tmp = record_new(q->nextID, destination, date, type_of_coach, available);
+	q->nextID++;
 	q->tail->next = tmp;
 	q->tail = tmp;
 }
@@ -103,6 +107,7 @@ void queue_pop(struct RecordQueue* q) {
 	}
 }
 
+// Make queue empty
 void queue_clear(struct RecordQueue* q) {
 	while (q->head) {
 		queue_pop(q);
@@ -127,8 +132,8 @@ void queue_print(struct RecordQueue q) {
 }
 
 // Global queues for storing data
-struct RecordQueue purchases = { .head = NULL, .tail = NULL };
-struct RecordQueue returns = { .head = NULL, .tail = NULL };
+struct RecordQueue purchases = { .head = NULL, .tail = NULL, .nextID = 1 };
+struct RecordQueue returns = { .head = NULL, .tail = NULL, .nextID = 1 };
 
 // UTIL FUNCTIONS
 // TODO: get get_valid_option and clear_buffer functions to a separate io.h file
@@ -191,22 +196,23 @@ void purchase_submenu_process() {
 		int option = get_valid_option(1, 4);
 
 		if (option == 1) {
-			printf("ID: ");
-			uint32_t id;
-			sscanf(get_string_input(10), "%u", &id);
 			clear_buffer();
 			printf("Destination: ");
 			const char* destination = get_string_input(60);
+
 			printf("Date: ");
 			const char* date = get_string_input(16);
+
 			printf("Type of Coach: ");
 			const char* type_of_coach = get_string_input(25);
+
 			printf("Available (yes/no): ");
 			bool available;
 			const char* available_str = get_string_input(4);
 			available = strcmp(available_str, "yes") == 0;
-			queue_push(&purchases, id, destination, date, type_of_coach, available);
-			printf("Successfully added this record to the queue!\n");
+
+			queue_push(&purchases, destination, date, type_of_coach, available);
+			printf("Successfully added this record to the purchases queue!\n");
 		} else if (option == 2) {
 			queue_pop(&purchases);
 		} else if (option == 3) {
@@ -228,12 +234,7 @@ void return_submenu_process() {
 
 		int option = get_valid_option(1, 4);
 		if (option == 1) {
-			printf("ID: ");
-			uint32_t id;
-			const char* id_str = get_string_input(10);
-			sscanf(id_str, "%u", &id);
-			printf("ID: %u\n", id);
-
+			clear_buffer();
 			printf("Destination: ");
 			const char* destination = get_string_input(60);
 
@@ -248,7 +249,8 @@ void return_submenu_process() {
 			const char* available_str = get_string_input(4);
 			available = strcmp(available_str, "yes") == 0;
 
-			queue_push(&returns, id, destination, date, type_of_coach, available);
+			queue_push(&returns, destination, date, type_of_coach, available);
+			printf("Successfully added this record to the returns queue!\n");
 		} else if (option == 2) {
 			queue_pop(&returns);
 		} else if (option == 3) {
