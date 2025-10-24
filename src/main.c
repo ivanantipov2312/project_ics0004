@@ -268,8 +268,8 @@ void report_submenu_process() {
 		printf("2. See the first purchase record.\n");
 		printf("3. See the last purchase record.\n");
 		printf("4. List all return records.\n");
-		printf("5. List the first purchase record.\n");
-		printf("6. List the last purchase record.\n");
+		printf("5. List the first return record.\n");
+		printf("6. List the last return record.\n");
 		printf("7. Print all records.\n");
 		printf("8. Drop all records.\n");
 		printf("9. Go back to menu.\n");
