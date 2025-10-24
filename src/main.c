@@ -273,7 +273,7 @@ void report_submenu_process() {
 		printf("9. Go back to menu.\n");
 		printf("------------------------\n");
 
-		int option = get_valid_option(1, 8);
+		int option = get_valid_option(1, 9);
 		if (option == 1) {
 			queue_print(purchases);
 		} else if (option == 2) {
@@ -296,6 +296,17 @@ void report_submenu_process() {
 			} else {
 				printf("The queue is empty!\n");
 			}
+		} else if (option == 6) {
+			if (!queue_is_empty(returns)) {
+				record_print(returns.tail);
+			} else {
+				printf("The queue is empty!\n");
+			}
+		} else if (option == 7) {
+			printf("PURCHASES:\n");
+			queue_print(purchases);
+			printf("RETURNS:\n");
+			queue_print(returns);
 		} else if (option == 8) {
 			queue_clear(&returns);
 			queue_clear(&purchases);
