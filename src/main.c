@@ -32,7 +32,7 @@ struct Ticket ticketDB[] = {
 // TODO: hardcoded size
 struct Ticket dailySales[10] = { 0 };
 
-void query(struct Ticket* queryTicket, struct Ticket* results) {
+void query(struct Ticket *queryTicket, struct Ticket* results[]) {
 
     // if querying a specific ticket ID, must be a refund, otherwise purchase
     if (queryTicket->ID > 0) {
@@ -41,17 +41,21 @@ void query(struct Ticket* queryTicket, struct Ticket* results) {
         printf("This is a PURCHASE request!\n");
 
         int resultCount = 0;
-        struct Ticket compareTicket;
 
         for (int i = 0; i < 10; i++) {
-            compareTicket = ticketDB[i];
-            printf("Q: %s\n", queryTicket->destination);
-            printf("Q: %s\n", queryTicket->date);
-            printf("Q: %s\n", queryTicket->type);
-            printf("D: %s\n", compareTicket.destination);
-            printf("D: %s\n", compareTicket.date);
-            printf("D: %s\n", compareTicket.type);
-            if (strcmp(queryTicket->type, compareTicket.type) && strcmp(queryTicket->destination, compareTicket.destination) && strcmp(queryTicket->date, compareTicket.date)) {
+
+            // nested just because it looked better than a long comparison ...
+            if (strcmp(queryTicket->destination, ticketDB[i].destination) == 0){
+                if (strcmp(queryTicket->date, ticketDB[i].date) == 0) {
+                    if (strcmp(queryTicket->type, ticketDB[i].type) == 0) {
+                        printf("It's a match! (%d)\n", resultCount);
+                        results[resultCount] = &ticketDB[i];
+                        resultCount++;
+                    }
+                }
+            }
+
+            if (strcmp(queryTicket->type, ticketDB[i].type) && strcmp(queryTicket->destination, ticketDB[i].destination) && strcmp(queryTicket->date, ticketDB[i].date)) {
                 printf("It's a match!\n");
                 // add to results[i]
                 resultCount++;
@@ -88,9 +92,11 @@ void purchase() {
     scanf("%s", queryTicket.type);
 
     // TODO: fix hardcoded size
-    struct Ticket results[10] = { 0 };
+    struct Ticket* results[10];
     // query our desired ticket and link any finds into our results array
-    query(&queryTicket, &results[0]);
+    query(&queryTicket, results);
+
+    printf("ID: %s", results[0]->ID);
 
     // ask, input customer selection
 
@@ -113,11 +119,13 @@ void refund() {
     struct Ticket queryTicket = { ticketID, false, 0.0, '\0', '\0', '\0', '\0' };
     struct Ticket result = { 0, false, 0.0, '\0', '\0', '\0', '\0' };
 
+    /*
     query(&queryTicket, &result);
 
     if (result.ID > 0) {
         // calculate refund here
     }
+    */
 
     // ask confirmation
 
@@ -139,37 +147,15 @@ void print_menu() {
     printf("------------------------\n");
 }
 
-// TODO: get get_valid_option and clear_buffer functions to a separate io.h file
-// buffer clear function to check for an Invalid input and clear the whole line if the input is Invalid
-void clear_buffer() {
-    int buffer;
-    while ((buffer = getchar()) != '\n' && buffer != EOF);
-}
-
-// Get an in-bounds integer input
-int get_valid_option(int option_min, int option_max) {
-    int option;
-    while (true) {
-        // TODO: make message a separate argument to the get_valid_option function
-        printf("Your option: ");
-
-        // If input is a non-integer or it's smaller than the minimum option or it's larger that the maximum option, try again
-        if (scanf("%d", &option) != 1 || option < option_min || option > option_max) {
-            printf("Invalid input. Valid options are %d-%d.\n", option_min, option_max);
-            clear_buffer();
-            continue;
-        }
-
-        // If our check doesn't pass, break the loop and return the result
-        break;
-    }
-    return option;
-}
-
 void main_loop() {
     while (true) {
+
         print_menu();
-        int option = get_valid_option(1, 4);
+
+        printf("Your option: ");
+        int option;
+        scanf("%d", &option);
+        while ((getchar()) != '\n');
 
         switch (option) {
             case 1:
