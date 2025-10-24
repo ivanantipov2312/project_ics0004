@@ -1,24 +1,132 @@
-#include <stdio.h>
-// use true to distinguish true value from integer literal 1
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-// subemnus
-void print_purchase_submenu() {
-    printf("--------PURCHASES-------\n");
-    printf("1. Go back to menu.\n");
-    printf("------------------------\n");
+struct Ticket {
+    int ID;                 // record ID
+    bool lock;              // locked while viewing
+    float price;            // price of ticket
+    char type[10];          // cabin type
+    char destination[10];   // destination
+    char date[11];          // date of travel
+    char passport[20];      // passport number
+};
+
+// global ticket database
+// TODO: hardcoded size
+struct Ticket ticketDB[] = {
+    { 100, false, 20.25, "sleeper\0", "Seattle\0", "10.04.2026\0", '\0' },
+    { 101, false, 20.25, "dining\0", "Seattle\0", "10.04.2026\0", '\0' },
+    { 102, false, 20.25, "luxury\0", "Seattle\0", "10.04.2026\0", '\0' },
+    { 103, false, 20.25, "sleeper\0", "Timbuktu\0", "10.04.2026\0", '\0' },
+    { 104, false, 20.25, "dining\0", "Timbuktu\0", "10.04.2026\0", '\0' },
+    { 105, false, 20.25, "luxury\0", "Timbuktu\0", "10.04.2026\0", '\0' },
+    { 106, false, 20.25, "sleeper\0", "London\0", "10.04.2026\0", '\0' },
+    { 107, false, 20.25, "dining\0", "London\0", "10.04.2026\0", '\0' },
+    { 108, false, 20.25, "luxury\0", "London\0", "10.04.2026\0", '\0' },
+    { 109, false, 20.25, "sleeper\0", "Tartu\0", "10.04.2026\0", '\0' }
+};
+
+// global daily ticket sales
+// TODO: hardcoded size
+struct Ticket dailySales[10] = { 0 };
+
+void query(struct Ticket* queryTicket, struct Ticket* results) {
+
+    // if querying a specific ticket ID, must be a refund, otherwise purchase
+    if (queryTicket->ID > 0) {
+        printf("This is a RETURN request!\n");
+    } else {
+        printf("This is a PURCHASE request!\n");
+
+        int resultCount = 0;
+        struct Ticket compareTicket;
+
+        for (int i = 0; i < 10; i++) {
+            compareTicket = ticketDB[i];
+            printf("Q: %s\n", queryTicket->destination);
+            printf("Q: %s\n", queryTicket->date);
+            printf("Q: %s\n", queryTicket->type);
+            printf("D: %s\n", compareTicket.destination);
+            printf("D: %s\n", compareTicket.date);
+            printf("D: %s\n", compareTicket.type);
+            if (strcmp(queryTicket->type, compareTicket.type) && strcmp(queryTicket->destination, compareTicket.destination) && strcmp(queryTicket->date, compareTicket.date)) {
+                printf("It's a match!\n");
+                // add to results[i]
+                resultCount++;
+            }
+        }
+    }
+
 }
 
-void print_return_submenu() {
-    printf("---------RETURNS--------\n");
-    printf("1. Go back to menu.\n");
-    printf("------------------------\n");
+/*
+void register_sale(struct Ticket *ticket) {
+    // call from update? or from purchase?
+    // add Ticket to sales array
+}
+*/
+
+void purchase() {
+    // create Ticket struct
+    struct Ticket queryTicket = { 0 };
+
+    // input destination
+    char dest[10];
+    printf("Destination: ");
+    scanf("%s", queryTicket.destination);
+
+    // input date
+    char date[11];
+    printf("Date (DD.MM.YYYY): ");
+    scanf("%s", queryTicket.date);
+
+    // input type
+    char type[10];
+    printf("Type (sleeper/dining/luxury): ");
+    scanf("%s", queryTicket.type);
+
+    // TODO: fix hardcoded size
+    struct Ticket results[10] = { 0 };
+    // query our desired ticket and link any finds into our results array
+    query(&queryTicket, &results[0]);
+
+    // ask, input customer selection
+
+    // input passport (update the Ticket pointer in ticketDB)
+
+    // ask simple confirmation
+
+    //update appropriate Ticket* in ticketDB with passport info
+
+    // unlock tickets (iterate through results array and unset lock)
 }
 
-void print_report_submenu() {
-    printf("----------REPORT--------\n");
-    printf("1. Go back to menu.\n");
-    printf("------------------------\n");
+void refund() {
+    // input ticket ID
+    int ticketID;
+    printf("Return Ticket ID (###): ");
+    scanf("%d", &ticketID);
+
+    // create Ticket struct
+    struct Ticket queryTicket = { ticketID, false, 0.0, '\0', '\0', '\0', '\0' };
+    struct Ticket result = { 0, false, 0.0, '\0', '\0', '\0', '\0' };
+
+    query(&queryTicket, &result);
+
+    if (result.ID > 0) {
+        // calculate refund here
+    }
+
+    // ask confirmation
+
+    // set Ticket->passport to empty again
+    //update(Ticket*);
+}
+
+void report() {
+    // just iterate through dailySales[] 0-10 and print any non-zero entries, stopping when hits 0
 }
 
 // main menu
@@ -63,20 +171,19 @@ void main_loop() {
         print_menu();
         int option = get_valid_option(1, 4);
 
-        // main menu options
-        // Get the input until user hits 1 - "Return to the main menu"
-        if (option == 1) {
-            print_purchase_submenu();
-            while ((option = get_valid_option(1, 1)) != 1);
-        } else if (option == 2) {
-            print_return_submenu();
-            while ((option = get_valid_option(1, 1)) != 1);
-        } else if (option == 3) {
-            print_report_submenu();
-            while ((option = get_valid_option(1, 1)) != 1);
-        } else if (option == 4) {
-            printf("Goodbye!\n");
-            break; // Quit the main loop
+        switch (option) {
+            case 1:
+                purchase();
+                break;
+            case 2:
+                refund();
+                break;
+            case 3:
+                report();
+                break;
+            case 4:
+                printf("Goodbye!\n");
+                exit(0);
         }
     }
 }
