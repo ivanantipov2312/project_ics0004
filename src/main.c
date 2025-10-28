@@ -8,16 +8,20 @@
 struct Record {
 	uint32_t id;
 	char* destination;
-	char* date;
+	char* departure_datetime;
+	char* arrival_datetime;
 	char* type_of_coach;
+	double ticket_price;
+	char* purchase_datetime;
 	bool available;
 	struct Record* next; // For queue
 };
 
-struct Record* record_new(uint32_t id, const char* destination, const char* date, const char* type_of_coach, bool available) {
+struct Record* record_new(uint32_t id, const char* destination, const char* departure_datetime, const char* arrival_datetime, const char* type_of_coach, double ticket_price, const char* purchase_datetime, bool available) {
 	struct Record* rec = malloc(sizeof(*rec));
 	rec->id = id;
 	rec->available = available;
+	rec->ticket_price = ticket_price;
 
 	// Write data to the structure
 	// len + 1 because snprintf adds null-termination
@@ -26,16 +30,26 @@ struct Record* record_new(uint32_t id, const char* destination, const char* date
 	snprintf(rec->destination, len + 1, "%s", destination);
 	rec->destination[len] = '\0';
 
-	len = strlen(date);
-	rec->date = malloc(sizeof(char) * (len + 1));
-	snprintf(rec->date, len + 1, "%s", date);
-	rec->date[len] = '\0';
+	len = strlen(departure_datetime);
+	rec->departure_datetime = malloc(sizeof(char) * (len + 1));
+	snprintf(rec->departure_datetime, len + 1, "%s", departure_datetime);
+	rec->departure_datetime[len] = '\0';
+
+	len = strlen(arrival_datetime);
+	rec->arrival_datetime = malloc(sizeof(char) * (len + 1));
+	snprintf(rec->arrival_datetime, len + 1, "%s", arrival_datetime);
+	rec->arrival_datetime[len] = '\0';
 
 	const char* type_ptr = type_of_coach ? type_of_coach : "Unspecified";
 	len = strlen(type_ptr);
 	rec->type_of_coach = malloc(sizeof(char) * (len + 1));
 	snprintf(rec->type_of_coach, len + 1, "%s", type_ptr);
 	rec->type_of_coach[len] = '\0';
+
+	len = strlen(purchase_datetime);
+	rec->purchase_datetime = malloc(sizeof(char) * (len + 1));
+	snprintf(rec->purchase_datetime, len + 1, "%s", purchase_datetime);
+	rec->purchase_datetime[len] = '\0';
 
 	rec->next = NULL;
 
@@ -47,20 +61,31 @@ void record_free(struct Record* rec) {
 	if (rec) {
 		rec->id = 0;
 		rec->available = false;
+		rec->ticket_price = 0;
 
 		if (rec->destination) {
 			free(rec->destination);
 			rec->destination = NULL;
 		}
 
-		if (rec->date) {
-			free(rec->date);
-			rec->date = NULL;
+		if (rec->departure_datetime) {
+			free(rec->departure_datetime);
+			rec->departure_datetime = NULL;
+		}
+
+		if (rec->arrival_datetime) {
+			free(rec->arrival_datetime);
+			rec->arrival_datetime = NULL;
 		}
 
 		if (rec->type_of_coach) {
 			free(rec->type_of_coach);
 			rec->type_of_coach = NULL;
+		}
+
+		if (rec->purchase_datetime) {
+			free(rec->purchase_datetime);
+			rec->purchase_datetime = NULL;
 		}
 
 		free(rec);
@@ -69,8 +94,8 @@ void record_free(struct Record* rec) {
 }
 
 void record_print(struct Record* rec) {
-	printf("ID: %u, Destination: %s, Date: %s, Type of Coach: %s, Available: %s\n",
-			rec->id, rec->destination, rec->date, rec->type_of_coach, rec->available ? "Yes": "No");
+	printf("ID: %u, Destination: %s, Departing: %s, Arriving: %s, Type of Coach: %s, Ticket Price: %.2lf, Purchase Time: %s, Available: %s\n",
+			rec->id, rec->destination, rec->departure_datetime, rec->arrival_datetime, rec->type_of_coach, rec->ticket_price, rec->purchase_datetime, rec->available ? "Yes": "No");
 }
 
 struct RecordQueue {
@@ -80,14 +105,14 @@ struct RecordQueue {
 };
 
 // Add the item to the end
-void queue_push(struct RecordQueue* q, const char* destination, const char* date, const char* type_of_coach, bool available) {
+void queue_push(struct RecordQueue* q, const char* destination, const char* departure_datetime, const char* arrival_datetime, const char* type_of_coach, double ticket_price, const char* purchase_datetime, bool available) {
 	if (!q->head) {
-		q->head = q->tail = record_new(q->nextID, destination, date, type_of_coach, available);
+		q->head = q->tail = record_new(q->nextID, destination, departure_datetime, arrival_datetime, type_of_coach, ticket_price, purchase_datetime, available);
 		q->nextID++;
 		return;
 	}
 
-	struct Record* tmp = record_new(q->nextID, destination, date, type_of_coach, available);
+	struct Record* tmp = record_new(q->nextID, destination, departure_datetime, arrival_datetime, type_of_coach, ticket_price, purchase_datetime, available);
 	q->nextID++;
 	q->tail->next = tmp;
 	q->tail = tmp;
@@ -164,6 +189,16 @@ const char* get_string_input(int max_len) {
 	return buffer;
 }
 
+double get_double_input(void) {
+	double input;
+	if (scanf("%lf", &input) != 1) {
+		clear_buffer();
+		return 0.0;
+	}
+	clear_buffer();
+	return input;
+}
+
 // Get an in-bounds integer input
 int get_valid_option(int option_min, int option_max) {
     int option;
@@ -200,18 +235,28 @@ void purchase_submenu_process() {
 			printf("Destination: ");
 			const char* destination = get_string_input(60);
 
-			printf("Date: ");
-			const char* date = get_string_input(16);
+			printf("Departing (YYYY-MM-DD-hh-mm): ");
+			const char* departure_datetime = get_string_input(20);
+
+			printf("Arriving (YYYY-MM-DD-hh-mm): ");
+			const char* arrival_datetime = get_string_input(20);
 
 			printf("Type of Coach: ");
 			const char* type_of_coach = get_string_input(25);
+
+			printf("Ticker Price: ");
+			double ticket_price = get_double_input();
+
+			// In future will be replaced with automatic input based on current datetime
+			printf("Purchase Time (YYYY-MM-DD-hh-mm): ");
+			const char* purchase_datetime = get_string_input(20);
 
 			printf("Available (yes/no): ");
 			bool available;
 			const char* available_str = get_string_input(4);
 			available = strcmp(available_str, "yes") == 0;
 
-			queue_push(&purchases, destination, date, type_of_coach, available);
+			queue_push(&purchases, destination, departure_datetime, arrival_datetime, type_of_coach, ticket_price, purchase_datetime, available);
 			printf("Successfully added this record to the purchases queue!\n");
 		} else if (option == 2) {
 			queue_pop(&purchases);
@@ -233,23 +278,34 @@ void return_submenu_process() {
 		printf("------------------------\n");
 
 		int option = get_valid_option(1, 4);
+
 		if (option == 1) {
-			clear_buffer();
-			printf("Destination: ");
-			const char* destination = get_string_input(60);
+		clear_buffer();
+		printf("Destination: ");
+		const char* destination = get_string_input(60);
 
-			printf("Date: ");
-			const char* date = get_string_input(16);
+		printf("Departing (YYYY-MM-DD-hh-mm): ");
+		const char* departure_datetime = get_string_input(20);
 
-			printf("Type of Coach: ");
-			const char* type_of_coach = get_string_input(25);
+		printf("Arriving (YYYY-MM-DD-hh-mm): ");
+		const char* arrival_datetime = get_string_input(20);
 
-			printf("Available (yes/no): ");
-			bool available;
-			const char* available_str = get_string_input(4);
-			available = strcmp(available_str, "yes") == 0;
+		printf("Type of Coach: ");
+		const char* type_of_coach = get_string_input(25);
 
-			queue_push(&returns, destination, date, type_of_coach, available);
+		printf("Ticker Price: ");
+		double ticket_price = get_double_input();
+
+		// In future will be replaced with automatic input based on current datetime
+		printf("Purchase Time (YYYY-MM-DD-hh-mm): ");
+		const char* purchase_datetime = get_string_input(20);
+
+		printf("Available (yes/no): ");
+		bool available;
+		const char* available_str = get_string_input(4);
+		available = strcmp(available_str, "yes") == 0;
+
+			queue_push(&returns, destination, departure_datetime, arrival_datetime, type_of_coach, ticket_price, purchase_datetime, available);
 			printf("Successfully added this record to the returns queue!\n");
 		} else if (option == 2) {
 			queue_pop(&returns);
