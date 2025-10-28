@@ -244,7 +244,7 @@ void purchase_submenu_process() {
 			printf("Type of Coach: ");
 			const char* type_of_coach = get_string_input(25);
 
-			printf("Ticker Price: ");
+			printf("Ticket Price: ");
 			double ticket_price = get_double_input();
 
 			// In future will be replaced with automatic input based on current datetime
@@ -293,7 +293,7 @@ void return_submenu_process() {
 		printf("Type of Coach: ");
 		const char* type_of_coach = get_string_input(25);
 
-		printf("Ticker Price: ");
+		printf("Ticket Price: ");
 		double ticket_price = get_double_input();
 
 		// In future will be replaced with automatic input based on current datetime
