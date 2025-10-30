@@ -5,6 +5,75 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct Timestamp {
+	uint8_t hours;
+	uint8_t minutes;
+
+	uint8_t day;
+	uint8_t month;
+	uint16_t year;
+};
+
+bool is_leap_year(uint16_t year) {
+	return (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+}
+
+uint8_t month_days(uint8_t month, int year) {
+	switch (month) {
+	case 1: case 3: case 5: case 7: case 8: case 10: case 12:
+		return 31;
+	case 4: case 6: case 9: case 11:
+		return 30;
+	case 2: // Feb
+		if (is_leap_year(year)) {
+			return 29;
+		} else {
+			return 28;
+		}
+	default:
+		return 0;
+	}
+}
+
+uint8_t date_diff(struct Timestamp date1, struct Timestamp date2) {
+	int days1 = date1.day + (date1.month - 1) * month_days(date1.month, date1.year) + date1.year * is_leap_year(date1.year) ? 366 : 365;
+	int days2 = date2.day * (date2.month - 1) * month_days(date2.month, date2.year) + date2.year * is_leap_year(date2.year) ? 366 : 365;
+	return days2 - days1;
+}
+
+bool timestamp_from_string(const char* date, struct Timestamp* result) {
+	// Format check
+	if (sscanf(date, "%hhu:%hhu-%hhu/%hhu/%hu", &result->hours, &result->minutes, &result->day, &result->month, &result->year) != 5) {
+		printf("Error: Invalid date. Format is hh:mm-DD/MM/YYYY\n");
+		return false;
+	}
+
+	// Bounds checking
+	if (result->day > 31 || result->month > 12 || result->minutes > 60 || result->hours > 24) {
+		printf("Error: Out of bounds value in date.\n");
+		return false;
+	}
+
+	return true;
+}
+
+void timestamp_print(struct Timestamp time) {
+	printf("%u:%u-%u/%u/%u", time.hours, time.minutes, time.day, time.month, time.year);
+}
+
+double timestamp_penalty(struct Timestamp time_of_purchase, struct Timestamp time_of_departure) {
+	uint8_t days_diff = date_diff(time_of_purchase, time_of_departure);
+	if (days_diff > 30) {
+		return 0.01;
+	} else if (days_diff > 15) {
+		return 0.05;
+	} else if (days_diff > 3) {
+		return 0.10;
+	}
+
+	return 0.30;
+}
+
 struct Record {
 	uint32_t id;
 	char* destination;
@@ -156,9 +225,10 @@ void queue_print(struct RecordQueue q) {
 	}
 }
 
-// Global queues for storing data
+// Global variables
 struct RecordQueue purchases = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct RecordQueue returns = { .head = NULL, .tail = NULL, .nextID = 1 };
+struct Timestamp current_date = { .hours = 11, .minutes = 30, .day = 1, .month = 1, .year = 1970 };
 
 // UTIL FUNCTIONS
 // TODO: get get_valid_option and clear_buffer functions to a separate io.h file
@@ -192,8 +262,9 @@ const char* get_string_input(int max_len) {
 double get_double_input(void) {
 	double input;
 	if (scanf("%lf", &input) != 1) {
+		printf("Invalid input.\n");
 		clear_buffer();
-		return 0.0;
+		return -1.0;
 	}
 	clear_buffer();
 	return input;
@@ -235,10 +306,10 @@ void purchase_submenu_process() {
 			printf("Destination: ");
 			const char* destination = get_string_input(60);
 
-			printf("Departing (YYYY-MM-DD-hh-mm): ");
+			printf("Departing (hh:mm-DD/MM/YYYY): ");
 			const char* departure_datetime = get_string_input(20);
 
-			printf("Arriving (YYYY-MM-DD-hh-mm): ");
+			printf("Arriving (hh:mm-DD/MM/YYYY): ");
 			const char* arrival_datetime = get_string_input(20);
 
 			printf("Type of Coach: ");
@@ -248,7 +319,7 @@ void purchase_submenu_process() {
 			double ticket_price = get_double_input();
 
 			// In future will be replaced with automatic input based on current datetime
-			printf("Purchase Time (YYYY-MM-DD-hh-mm): ");
+			printf("Purchase Time (hh:mm-DD/MM/YYYY): ");
 			const char* purchase_datetime = get_string_input(20);
 
 			printf("Available (yes/no): ");
@@ -280,30 +351,30 @@ void return_submenu_process() {
 		int option = get_valid_option(1, 4);
 
 		if (option == 1) {
-		clear_buffer();
-		printf("Destination: ");
-		const char* destination = get_string_input(60);
+			clear_buffer();
+			printf("Destination: ");
+			const char* destination = get_string_input(60);
 
-		printf("Departing (YYYY-MM-DD-hh-mm): ");
-		const char* departure_datetime = get_string_input(20);
+			printf("Departing (hh:mm-DD/MM/YYYY): ");
+			const char* departure_datetime = get_string_input(20);
 
-		printf("Arriving (YYYY-MM-DD-hh-mm): ");
-		const char* arrival_datetime = get_string_input(20);
+			printf("Arriving (hh:mm-DD/MM/YYYY): ");
+			const char* arrival_datetime = get_string_input(20);
 
-		printf("Type of Coach: ");
-		const char* type_of_coach = get_string_input(25);
+			printf("Type of Coach: ");
+			const char* type_of_coach = get_string_input(25);
 
-		printf("Ticket Price: ");
-		double ticket_price = get_double_input();
+			printf("Ticket Price: ");
+			double ticket_price = get_double_input();
 
-		// In future will be replaced with automatic input based on current datetime
-		printf("Purchase Time (YYYY-MM-DD-hh-mm): ");
-		const char* purchase_datetime = get_string_input(20);
+			// In future will be replaced with automatic input based on current datetime
+			printf("Purchase Time (hh:mm-DD/MM/YYYY): ");
+			const char* purchase_datetime = get_string_input(20);
 
-		printf("Available (yes/no): ");
-		bool available;
-		const char* available_str = get_string_input(4);
-		available = strcmp(available_str, "yes") == 0;
+			printf("Available (yes/no): ");
+			bool available;
+			const char* available_str = get_string_input(4);
+			available = strcmp(available_str, "yes") == 0;
 
 			queue_push(&returns, destination, departure_datetime, arrival_datetime, type_of_coach, ticket_price, purchase_datetime, available);
 			printf("Successfully added this record to the returns queue!\n");
@@ -320,6 +391,9 @@ void return_submenu_process() {
 void report_submenu_process() {
 	while (true) {
 		printf("----------REPORT--------\n");
+		printf("Current date is: ");
+		timestamp_print(current_date);
+		printf("\n");
 		printf("1. List all purchase records.\n");
 		printf("2. See the first purchase record.\n");
 		printf("3. See the last purchase record.\n");
@@ -328,10 +402,11 @@ void report_submenu_process() {
 		printf("6. List the last return record.\n");
 		printf("7. Print all records.\n");
 		printf("8. Drop all records.\n");
-		printf("9. Go back to menu.\n");
+		printf("9. Set current date.\n");
+		printf("10. Go back to menu.\n");
 		printf("------------------------\n");
 
-		int option = get_valid_option(1, 9);
+		int option = get_valid_option(1, 10);
 		if (option == 1) {
 			queue_print(purchases);
 		} else if (option == 2) {
@@ -369,6 +444,11 @@ void report_submenu_process() {
 			queue_clear(&returns);
 			queue_clear(&purchases);
 		} else if (option == 9) {
+			clear_buffer();
+			printf("Date: ");
+			const char* date = get_string_input(20);
+			timestamp_from_string(date, &current_date);
+		} else if (option == 10) {
 			break;
 		}
 	}
