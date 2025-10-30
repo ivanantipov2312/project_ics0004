@@ -61,8 +61,8 @@ void timestamp_print(struct Timestamp time) {
 	printf("%u:%u-%u/%u/%u", time.hours, time.minutes, time.day, time.month, time.year);
 }
 
-double timestamp_penalty(struct Timestamp time_of_purchase, struct Timestamp time_of_departure) {
-	uint8_t days_diff = date_diff(time_of_purchase, time_of_departure);
+double timestamp_penalty(struct Timestamp current_date, struct Timestamp time_of_departure) {
+	uint8_t days_diff = date_diff(current_date, time_of_departure);
 	if (days_diff > 30) {
 		return 0.01;
 	} else if (days_diff > 15) {
