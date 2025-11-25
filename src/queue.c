@@ -34,6 +34,7 @@ void queue_clear(struct RecordQueue* q) {
 	while (q->head) {
 		queue_pop(q);
 	}
+	q->nextID = 1;
 }
 
 bool queue_is_empty(struct RecordQueue q) {
