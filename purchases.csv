@@ -1,4 +1,2 @@
 ID,Destination,Departure,Arrival,Type,Price,Purchased,Available
-1,Tallinn,10:30-12/12/2025,11:30-12/12/2025,Sleeper,10.40,10:30-12/12/2025,No
-2,Tallinn,10:30-12/12/2025,11:30-12/12/2025,Sleeper,8.30,08:30-12/12/2025,No
-3,Narva,03:30-11/10/2025,01:30-11/10/2025,Sleeper,10.30,00:30-11/10/2025,Yes
+1,Tallinn,10:10-10/10/1010,10:10-10/10/1010,Sleeper,10.30,10:10-10/10/1010,Yes
