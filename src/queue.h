@@ -14,10 +14,12 @@ void queue_push(struct RecordQueue* q, const char* destination, const char* depa
 		const char* arrival_datetime, const char* type_of_coach, double ticket_price, const char* purchase_datetime, bool available);
 
 // Delete the first item
-void queue_pop(struct RecordQueue* q); 
+void queue_pop(struct RecordQueue* q);
 
 // Make queue empty
 void queue_clear(struct RecordQueue* q);
+
+// Util functions
 bool queue_is_empty(struct RecordQueue q);
 void queue_print(struct RecordQueue q);
 

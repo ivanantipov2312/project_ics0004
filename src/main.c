@@ -6,6 +6,7 @@
 #include "queue.h"
 #include "utils.h"
 #include "timestamp.h"
+#include "file.h"
 
 // Global variables
 struct RecordQueue purchases = { .head = NULL, .tail = NULL, .nextID = 1 };
@@ -126,10 +127,12 @@ void report_submenu_process() {
 		printf("7. Print all records.\n");
 		printf("8. Drop all records.\n");
 		printf("9. Set current date.\n");
-		printf("10. Go back to menu.\n");
+		printf("10. Save the report to a file.\n");
+		printf("11. Read the report from a file.\n");
+		printf("12. Go back to menu.\n");
 		printf("------------------------\n");
 
-		int option = get_valid_option(1, 10);
+		int option = get_valid_option(1, 12);
 		if (option == 1) {
 			queue_print(purchases);
 		} else if (option == 2) {
@@ -172,6 +175,21 @@ void report_submenu_process() {
 			const char* date = get_string_input(20);
 			timestamp_from_string(date, &current_date);
 		} else if (option == 10) {
+			printf("Writing to purchases.csv...\n");
+			file_write(purchases, "purchases.csv");
+			printf("Writing to returns.csv...\n");
+			file_write(returns, "returns.csv");
+		} else if (option == 11) {
+			// Clear the queues to avoid duplicate readings
+			queue_clear(&purchases);
+			queue_clear(&returns);
+
+			printf("PURCHASES:\n");
+			file_read(&purchases, "purchases.csv");
+			printf("RETURNS:\n");
+			file_read(&returns, "returns.csv");
+			continue;
+		} else if (option == 12) {
 			break;
 		}
 	}
@@ -198,6 +216,9 @@ void main_loop() {
             report_submenu_process();
         } else if (option == 4) {
             printf("Goodbye!\n");
+			// Clean up our queues
+			queue_clear(&purchases);
+			queue_clear(&returns);
             break; // Quit the main loop
         }
     }
