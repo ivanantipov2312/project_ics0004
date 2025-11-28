@@ -26,7 +26,7 @@ void read_record(struct RecordQueue* q) {
 	float ticket_price = strtof(ticket_price_string, NULL);
 	char* purchase_datetime = get_string_input("Purchase Time (DD/MM/YYYY hh:mm): ", 18);
 	bool available;
-	char* available_str = get_string_input("Available (yes/no): ", 3);
+	char* available_str = get_string_input("Available (yes/no): ", 5);
 	available = strcmp(available_str, "yes") == 0;
 
 	queue_push(q, destination, departure_datetime, arrival_datetime, type_of_coach, ticket_price, purchase_datetime, available);
