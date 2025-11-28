@@ -8,7 +8,6 @@ uint8_t get_days_from_month(uint8_t month, uint16_t year);
 
 void clear_buffer();
 int get_valid_option(int min, int max);
-float get_float_input();
-const char* get_string_input(int max_len);
+char* get_string_input(const char* label, int max_len);
 
 #endif // UTILS_H_

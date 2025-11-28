@@ -65,7 +65,7 @@ void file_read(struct RecordQueue* q, const char* filename) {
 		char* arrival_time = strtok(NULL, ",");
 		char* type_of_coach = strtok(NULL, ",");
 		char* price_str = strtok(NULL, ",");
-		float price = atof(price_str);
+		float price = strtof(price_str, NULL);
 		char* purchase_time = strtok(NULL, ",");
 		char* available_str = strtok(NULL, ",");
 		bool available = strcmp(available_str, "Yes") == 0;

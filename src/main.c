@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "queue.h"
 #include "utils.h"
@@ -12,6 +13,31 @@
 struct RecordQueue purchases = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct RecordQueue returns = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct Timestamp current_date = { .hours = 11, .minutes = 30, .day = 1, .month = 1, .year = 1970 };
+
+void read_record(struct RecordQueue* q) {
+	clear_buffer();
+	char* destination = get_string_input("Destination: ", 60);
+	char* departure_datetime = get_string_input("Departing (hh:mm-DD/MM/YYYY: ", 20);
+	char* arrival_datetime = get_string_input("Arrving (hh:mm-DD/MM/YYYY): ", 20);
+	char* type_of_coach = get_string_input("Type of Coach: ", 25);
+	char* ticket_price_string = get_string_input("Price: ", 6);
+	float ticket_price = strtof(ticket_price_string, NULL);
+	char* purchase_datetime = get_string_input("Purchase Time (hh:mm-DD/MM/YYYY): ", 20);
+	bool available;
+	char* available_str = get_string_input("Available (yes/no): ", 4);
+	available = strcmp(available_str, "yes") == 0;
+
+	queue_push(q, destination, departure_datetime, arrival_datetime, type_of_coach, ticket_price, purchase_datetime, available);
+	printf("Successfully added this record to the purchases queue!\n");
+
+	free(destination);
+	free(departure_datetime);
+	free(arrival_datetime);
+	free(type_of_coach);
+	free(ticket_price_string);
+	free(purchase_datetime);
+	free(available_str);
+}
 
 // subemnus
 void purchase_submenu_process() {
@@ -26,33 +52,7 @@ void purchase_submenu_process() {
 		int option = get_valid_option(1, 4);
 
 		if (option == 1) {
-			clear_buffer();
-			printf("Destination: ");
-			const char* destination = get_string_input(60);
-
-			printf("Departing (hh:mm-DD/MM/YYYY): ");
-			const char* departure_datetime = get_string_input(20);
-
-			printf("Arriving (hh:mm-DD/MM/YYYY): ");
-			const char* arrival_datetime = get_string_input(20);
-
-			printf("Type of Coach: ");
-			const char* type_of_coach = get_string_input(25);
-
-			printf("Ticket Price: ");
-			float ticket_price = get_float_input();
-
-			// In future will be replaced with automatic input based on current datetime
-			printf("Purchase Time (hh:mm-DD/MM/YYYY): ");
-			const char* purchase_datetime = get_string_input(20);
-
-			printf("Available (yes/no): ");
-			bool available;
-			const char* available_str = get_string_input(4);
-			available = strcmp(available_str, "yes") == 0;
-
-			queue_push(&purchases, destination, departure_datetime, arrival_datetime, type_of_coach, ticket_price, purchase_datetime, available);
-			printf("Successfully added this record to the purchases queue!\n");
+			read_record(&purchases);
 		} else if (option == 2) {
 			queue_pop(&purchases);
 			printf("Dropped the last record!\n");
@@ -77,37 +77,13 @@ void return_submenu_process() {
 		int option = get_valid_option(1, 4);
 
 		if (option == 1) {
-			clear_buffer();
-			printf("Destination: ");
-			const char* destination = get_string_input(60);
-
-			printf("Departing (hh:mm-DD/MM/YYYY): ");
-			const char* departure_datetime = get_string_input(20);
-
-			printf("Arriving (hh:mm-DD/MM/YYYY): ");
-			const char* arrival_datetime = get_string_input(20);
-
-			printf("Type of Coach: ");
-			const char* type_of_coach = get_string_input(25);
-
-			printf("Ticket Price: ");
-			float ticket_price = get_float_input();
-
-			// In future will be replaced with automatic input based on current datetime
-			printf("Purchase Time (hh:mm-DD/MM/YYYY): ");
-			const char* purchase_datetime = get_string_input(20);
-
-			printf("Available (yes/no): ");
-			bool available;
-			const char* available_str = get_string_input(4);
-			available = strcmp(available_str, "yes") == 0;
-
-			queue_push(&returns, destination, departure_datetime, arrival_datetime, type_of_coach, ticket_price, purchase_datetime, available);
-			printf("Successfully added this record to the returns queue!\n");
+			read_record(&returns);
 		} else if (option == 2) {
 			queue_pop(&returns);
+			printf("Dropped the last record!\n");
 		} else if (option == 3) {
 			queue_clear(&returns);
+			printf("Cleared the queue!\n");
 		} else if (option == 4) {
 			break;
 		}
@@ -176,8 +152,7 @@ void report_submenu_process() {
 			printf("Both queues are cleared out!\n");
 		} else if (option == 9) {
 			clear_buffer();
-			printf("Date: ");
-			const char* date = get_string_input(20);
+			const char* date = get_string_input("Date: ", 20);
 			timestamp_from_string(date, &current_date);
 		} else if (option == 10) {
 			printf("Writing to purchases.csv...\n");
