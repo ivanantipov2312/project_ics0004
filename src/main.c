@@ -40,7 +40,7 @@ void purchase_submenu_process() {
 			const char* type_of_coach = get_string_input(25);
 
 			printf("Ticket Price: ");
-			double ticket_price = get_double_input();
+			float ticket_price = get_float_input();
 
 			// In future will be replaced with automatic input based on current datetime
 			printf("Purchase Time (hh:mm-DD/MM/YYYY): ");
@@ -89,7 +89,7 @@ void return_submenu_process() {
 			const char* type_of_coach = get_string_input(25);
 
 			printf("Ticket Price: ");
-			double ticket_price = get_double_input();
+			float ticket_price = get_float_input();
 
 			// In future will be replaced with automatic input based on current datetime
 			printf("Purchase Time (hh:mm-DD/MM/YYYY): ");

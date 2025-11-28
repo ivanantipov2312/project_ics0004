@@ -50,13 +50,13 @@ const char* get_string_input(int max_len) {
 	return buffer;
 }
 
-// Safely get double from user
-double get_double_input(void) {
-	double input;
-	if (scanf("%lf", &input) != 1) {
+// Safely get float from user
+float get_float_input(void) {
+	float input;
+	if (scanf("%f", &input) != 1) {
 		printf("Invalid input.\n");
 		clear_buffer();
-		return -1.0;
+		return -1.0f;
 	}
 	clear_buffer();
 	return input;

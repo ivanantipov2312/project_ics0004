@@ -16,16 +16,25 @@ void file_write(struct RecordQueue q, const char* filename) {
 	// Write one by one
 	struct Record* r = q.head;
 	while (r) {
-		fprintf(fp, "%u,%s,%s,%s,%s,%.2lf,%s,%s\n",
+		char* departure = timestamp_to_string(r->departure_timestamp);
+		char* arrival = timestamp_to_string(r->arrival_timestamp);
+		char* purchase = timestamp_to_string(r->purchase_timestamp);
+
+		fprintf(fp, "%u,%s,%s,%s,%s,%.2f,%s,%s\n",
 			r->id,
 			r->destination,
-			r->departure_datetime,
-			r->arrival_datetime,
+			departure,
+			arrival,
 			r->type_of_coach,
 			r->ticket_price,
-			r->purchase_datetime,
+			purchase,
 			(r->available ? "Yes" : "No")
 		);
+
+		free(departure);
+		free(arrival);
+		free(purchase);
+
 		r = r->next;
 	}
 
@@ -61,7 +70,7 @@ void file_read(struct RecordQueue* q, const char* filename) {
 		char* arrival_time = strtok(NULL, ",");
 		char* type_of_coach = strtok(NULL, ",");
 		char* price_str = strtok(NULL, ",");
-		double price = atof(price_str);
+		float price = atof(price_str);
 		char* purchase_time = strtok(NULL, ",");
 		char* available_str = strtok(NULL, ",");
 		bool available = strcmp(available_str, "Yes") == 0;
