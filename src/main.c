@@ -19,12 +19,12 @@ void read_record(struct RecordQueue* q) {
 
 	// Read all the fields
 	char* destination = get_string_input("Destination: ", 60);
-	char* departure_datetime = get_string_input("Departing (hh:mm-DD/MM/YYYY): ", 18); // 16 for date + 1 for '\n' + 1 for '\0'
-	char* arrival_datetime = get_string_input("Arrving (hh:mm-DD/MM/YYYY): ", 18);
+	char* departure_datetime = get_string_input("Departing (DD/MM/YYYY hh:mm): ", 18); // 16 for date + 1 for '\n' + 1 for '\0'
+	char* arrival_datetime = get_string_input("Arrving (DD/MM/YYYY hh:mm): ", 18);
 	char* type_of_coach = get_string_input("Type of Coach: ", 25);
 	char* ticket_price_string = get_string_input("Price: ", 6); // Safer than using scanf("%f",...);
 	float ticket_price = strtof(ticket_price_string, NULL);
-	char* purchase_datetime = get_string_input("Purchase Time (hh:mm-DD/MM/YYYY): ", 18);
+	char* purchase_datetime = get_string_input("Purchase Time (DD/MM/YYYY hh:mm): ", 18);
 	bool available;
 	char* available_str = get_string_input("Available (yes/no): ", 3);
 	available = strcmp(available_str, "yes") == 0;

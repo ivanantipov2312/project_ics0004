@@ -11,8 +11,8 @@ uint8_t timestamp_diff(struct Timestamp date1, struct Timestamp date2) {
 
 bool timestamp_from_string(const char* date, struct Timestamp* result) {
 	// Format check
-	if (sscanf(date, "%hhu:%hhu-%hhu/%hhu/%hu", &result->hours, &result->minutes, &result->day, &result->month, &result->year) != 5) {
-		printf("Error: Invalid date. Format is hh:mm-DD/MM/YYYY\n");
+	if (sscanf(date, "%hhu/%hhu/%hu %hhu:%hhu", &result->day, &result->month, &result->year, &result->hours, &result->minutes) != 5) {
+		printf("Error: Invalid date. Format is DD/MM/YYYY hh:mm\n");
 		return false;
 	}
 
@@ -27,13 +27,13 @@ bool timestamp_from_string(const char* date, struct Timestamp* result) {
 
 char* timestamp_to_string(struct Timestamp timestamp) {
 	char* res = malloc(sizeof(char) * 17);
-	snprintf(res, 17, "%hhu:%hhu-%hhu/%hhu/%hu", timestamp.hours, timestamp.minutes, timestamp.day, timestamp.month, timestamp.year);
+	snprintf(res, 17, "%hhu/%hhu/%hu %hhu:%hhu", timestamp.day, timestamp.month, timestamp.year, timestamp.hours, timestamp.minutes);
 	res[16] = '\0';
 	return res;
 }
 
 void timestamp_print(struct Timestamp time) {
-	printf("%u:%u-%u/%u/%u", time.hours, time.minutes, time.day, time.month, time.year);
+	printf("%hhu/%hhu/%hu %hhu:%hhu", time.day, time.month, time.year, time.hours, time.minutes);
 }
 
 float timestamp_penalty(struct Timestamp current_date, struct Timestamp time_of_departure) {
