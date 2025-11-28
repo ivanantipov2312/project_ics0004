@@ -55,8 +55,10 @@ void purchase_submenu_process() {
 			printf("Successfully added this record to the purchases queue!\n");
 		} else if (option == 2) {
 			queue_pop(&purchases);
+			printf("Dropped the last record!\n");
 		} else if (option == 3) {
 			queue_clear(&purchases);
+			printf("Cleared all purchases!\n");
 		} else if (option == 4) {
 			break;
 		}
@@ -134,6 +136,7 @@ void report_submenu_process() {
 
 		int option = get_valid_option(1, 12);
 		if (option == 1) {
+			printf("Purchases: \n");
 			queue_print(purchases);
 		} else if (option == 2) {
 			if (!queue_is_empty(purchases)) {
@@ -148,6 +151,7 @@ void report_submenu_process() {
 				printf("The queue is empty!\n");
 			}
 		} else if (option == 4) {
+			printf("Returns: \n");
 			queue_print(returns);
 		} else if (option == 5) {
 			if (!queue_is_empty(returns)) {
@@ -162,13 +166,14 @@ void report_submenu_process() {
 				printf("The queue is empty!\n");
 			}
 		} else if (option == 7) {
-			printf("PURCHASES:\n");
+			printf("Purchases:\n");
 			queue_print(purchases);
-			printf("RETURNS:\n");
+			printf("Rerturns:\n");
 			queue_print(returns);
 		} else if (option == 8) {
 			queue_clear(&returns);
 			queue_clear(&purchases);
+			printf("Both queues are cleared out!\n");
 		} else if (option == 9) {
 			clear_buffer();
 			printf("Date: ");
