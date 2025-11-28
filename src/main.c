@@ -16,15 +16,17 @@ struct Timestamp current_date = { .hours = 11, .minutes = 30, .day = 1, .month =
 
 void read_record(struct RecordQueue* q) {
 	clear_buffer();
+
+	// Read all the fields
 	char* destination = get_string_input("Destination: ", 60);
-	char* departure_datetime = get_string_input("Departing (hh:mm-DD/MM/YYYY: ", 20);
-	char* arrival_datetime = get_string_input("Arrving (hh:mm-DD/MM/YYYY): ", 20);
+	char* departure_datetime = get_string_input("Departing (hh:mm-DD/MM/YYYY): ", 18); // 16 for date + 1 for '\n' + 1 for '\0'
+	char* arrival_datetime = get_string_input("Arrving (hh:mm-DD/MM/YYYY): ", 18);
 	char* type_of_coach = get_string_input("Type of Coach: ", 25);
-	char* ticket_price_string = get_string_input("Price: ", 6);
+	char* ticket_price_string = get_string_input("Price: ", 6); // Safer than using scanf("%f",...);
 	float ticket_price = strtof(ticket_price_string, NULL);
-	char* purchase_datetime = get_string_input("Purchase Time (hh:mm-DD/MM/YYYY): ", 20);
+	char* purchase_datetime = get_string_input("Purchase Time (hh:mm-DD/MM/YYYY): ", 18);
 	bool available;
-	char* available_str = get_string_input("Available (yes/no): ", 4);
+	char* available_str = get_string_input("Available (yes/no): ", 3);
 	available = strcmp(available_str, "yes") == 0;
 
 	queue_push(q, destination, departure_datetime, arrival_datetime, type_of_coach, ticket_price, purchase_datetime, available);

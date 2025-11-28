@@ -27,7 +27,7 @@ bool timestamp_from_string(const char* date, struct Timestamp* result) {
 
 char* timestamp_to_string(struct Timestamp timestamp) {
 	char* res = malloc(sizeof(char) * 17);
-	snprintf(res, 16, "%hhu:%hhu-%hhu/%hhu/%hu", timestamp.hours, timestamp.minutes, timestamp.day, timestamp.month, timestamp.year);
+	snprintf(res, 17, "%hhu:%hhu-%hhu/%hhu/%hu", timestamp.hours, timestamp.minutes, timestamp.day, timestamp.month, timestamp.year);
 	res[16] = '\0';
 	return res;
 }

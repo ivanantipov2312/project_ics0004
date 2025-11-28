@@ -33,21 +33,28 @@ void clear_buffer() {
 char* get_string_input(const char* label, int max_len) {
 	char* buffer;
 	while (true) {
-		printf("%s", label);
+		if (label) {
+			printf("%s", label);
+			fflush(stdout);
+		}
 		buffer = malloc(sizeof(char) * (max_len + 1));
 
 		// max_len + 1 for null-termination
-		if (fgets(buffer, max_len + 1, stdin) == NULL) {
+		if (fgets(buffer, max_len, stdin) == NULL) {
 			printf("Failed to read string!\n");
 			free(buffer);
 			continue;
 		}
 
+		if (buffer[strlen(buffer)-1] != '\n') {
+			clear_buffer();
+		}
+
 		// Set '\0' where '\n' is located to handle ENTER keypress
-		buffer[strcspn(buffer, "\n")] = '\0';
+		buffer[strlen(buffer) - 1] = '\0';
 
 		// If our buffer is allocated but length is longer than it should be, free the buffer and return NULL
-		if (buffer && (int)strlen(buffer) >= max_len) {
+		if (buffer && (int)strlen(buffer) > max_len) {
 			printf("Buffer too long!\n");
 			free(buffer);
 			continue;
