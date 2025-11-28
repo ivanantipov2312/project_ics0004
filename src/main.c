@@ -184,9 +184,9 @@ void report_submenu_process() {
 			queue_clear(&purchases);
 			queue_clear(&returns);
 
-			printf("PURCHASES:\n");
+			printf("Reading purchases.csv...\n");
 			file_read(&purchases, "purchases.csv");
-			printf("RETURNS:\n");
+			printf("Reading returns.csv...\n");
 			file_read(&returns, "returns.csv");
 			continue;
 		} else if (option == 12) {

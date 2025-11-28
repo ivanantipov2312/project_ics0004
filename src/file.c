@@ -53,16 +53,11 @@ void file_read(struct RecordQueue* q, const char* filename) {
 		return;
 	}
 
-	ssize_t read;
-	char* line = NULL;
-	size_t len = 0;
-
 	// Skip the first line (table headers)
-	read = getline(&line, &len, fp);
+	char line[512];
+	fgets(line, sizeof(line), fp);
 
-	while ((read = getline(&line, &len, fp)) != -1) {
-		printf("%s", line);
-
+	while (fgets(line, sizeof(line), fp) != NULL) {
 		// Extract all fields, except for the firt one (ID is dynamic)
 		strtok(line, ",");
 		char* destination = strtok(NULL, ",");
