@@ -15,31 +15,6 @@ struct RecordQueue purchases = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct RecordQueue returns = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct Timestamp current_date = { .hours = 9, .minutes = 37, .day = 20, .month = 12, .year = 2025 };
 
-void read_record(struct RecordQueue* q) {
-	clear_buffer();
-
-	// Read all the fields
-	char* destination = get_string_input("Destination: ", 60);
-	char* departure_datetime = get_string_input("Departing (DD/MM/YYYY hh:mm): ", 18); // 16 for date + 1 for '\n' + 1 for '\0'
-	char* type_of_coach = get_string_input("Type of Coach: ", 25);
-	char* ticket_price_string = get_string_input("Price: ", 6); // Safer than using scanf("%f",...);
-	float ticket_price = strtof(ticket_price_string, NULL);
-	bool available;
-	char* available_str = get_string_input("Available (yes/no): ", 5);
-	available = strcmp(available_str, "yes") == 0;
-	char* passport_id = get_string_input("Passport ID: ", 20);
-
-	queue_push(q, destination, departure_datetime, type_of_coach, ticket_price, available, passport_id);
-	printf("Successfully added this record to the purchases queue!\n");
-
-	free(destination);
-	free(departure_datetime);
-	free(type_of_coach);
-	free(ticket_price_string);
-	free(available_str);
-	free(passport_id);
-}
-
 void process_purchase() {
 	clear_buffer();
 
@@ -49,8 +24,8 @@ void process_purchase() {
 	char* type_of_coach = get_string_input("Type of Coach: ", 25);
 
 	// search ticket queue for matching record
-	struct Record* match;
-	queue_search(&match, database, destination, departure_datetime, type_of_coach);
+	struct Record* match = NULL;
+	queue_search(&match, database, destination, departure_datetime, type_of_coach, NULL);
 
 	// print matching record for validation
 	printf("\n🔵 %s\t", match->destination);
@@ -79,6 +54,47 @@ void process_purchase() {
 
 	// add entry to purchases queue
 	queue_push(&purchases, match->destination, departure_datetime, match->type_of_coach, match->ticket_price, false, match->passport_id);
+
+	free(destination);
+	free(departure_datetime);
+	free(type_of_coach);
+	free(passport_id);
+}
+
+void process_return() {
+	char* passport_id = get_string_input("Passport ID (CCC########): ", 12);
+
+	// search ticket queue for matching record
+	struct Record* match = NULL;
+	queue_search(&match, database, NULL, NULL, NULL, passport_id);
+
+	record_print(match);
+
+	// calculate penalty
+	float penalty = timestamp_penalty(current_date, match->departure_timestamp);
+	float return_value = match->ticket_price - (match->ticket_price * penalty);
+
+	printf("> Customer is entitled to a return of %.2f\n\n", return_value);
+
+	printf("1. ✅ Yes\n");
+	printf("2. ⛔ No\n");
+	printf("Confirm? ");
+
+	int option = get_valid_option(1, 2);
+
+	if (option == 1) {
+		// mark ticket available for sale again
+		match->available = true;
+		// null out Passport ID information
+		match->passport_id = "NNN00000000\0";
+	} else if (option == 2) {
+		return;
+	}
+
+	// add entry to returns queue
+	//queue_push(&returns, match->destination, departure_datetime, match->type_of_coach, match->ticket_price, true, match->passport_id);
+
+	free(passport_id);
 }
 
 // subemnus
@@ -113,7 +129,7 @@ void return_submenu_process() {
 		int option = get_valid_option(1, 2);
 
 		if (option == 1) {
-			read_record(&returns);
+			process_return();
 		} else if (option == 2) {
 			break;
 		}
@@ -174,7 +190,7 @@ void report_submenu_process() {
 		} else if (option == 7) {
 			printf("Purchases:\n");
 			queue_print(purchases, 0);
-			printf("Rerturns:\n");
+			printf("Returns:\n");
 			queue_print(returns, 0);
 		} else if (option == 8) {
 			queue_clear(&returns);

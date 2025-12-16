@@ -44,18 +44,29 @@ bool queue_is_empty(struct RecordQueue q) {
 	return q.head == NULL;
 }
 
-void queue_search(struct Record** match, struct RecordQueue query, const char* destination, const char* departure_datetime, const char* type_of_coach) {
+void queue_search(struct Record** match, struct RecordQueue query, const char* destination, const char* departure_datetime, const char* type_of_coach, const char* passport_id) {
 	struct Record* tmp = query.head;
 
 	struct Timestamp q_timestamp;
 	timestamp_from_string(departure_datetime, &q_timestamp);
 
-	while (tmp) {
-		if (!strcmp(tmp->destination,destination) && !timestamp_diff(tmp->departure_timestamp,q_timestamp) && !strcmp(tmp->type_of_coach,type_of_coach)) {
-			*match = tmp;
-			break;
-		} else {
-			tmp = tmp->next;
+	if (passport_id != NULL) {
+		while (tmp) {
+			if(!strcmp(tmp->passport_id,passport_id)) {
+				*match = tmp;
+				break;
+			} else{
+				tmp = tmp->next;
+			}
+		}
+	} else {
+		while (tmp) {
+			if (!strcmp(tmp->destination,destination) && !timestamp_diff(tmp->departure_timestamp,q_timestamp) && !strcmp(tmp->type_of_coach,type_of_coach)) {
+				*match = tmp;
+				break;
+			} else {
+				tmp = tmp->next;
+			}
 		}
 	}
 }
