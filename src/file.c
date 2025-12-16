@@ -11,29 +11,23 @@ void file_write(struct RecordQueue q, const char* filename) {
 	}
 
 	// Paste the headers
-	fprintf(fp, "ID,Destination,Departure,Arrival,Type,Price,Purchased,Available\n");
+	fprintf(fp, "ID,Destination,Departure,Type,Price,Available\n");
 
 	// Write one by one
 	struct Record* r = q.head;
 	while (r) {
 		char* departure = timestamp_to_string(r->departure_timestamp);
-		char* arrival = timestamp_to_string(r->arrival_timestamp);
-		char* purchase = timestamp_to_string(r->purchase_timestamp);
 
-		fprintf(fp, "%u,%s,%s,%s,%s,%.2f,%s,%s\n",
+		fprintf(fp, "%u,%s,%s,%s,%.2f,%s\n",
 			r->id,
 			r->destination,
 			departure,
-			arrival,
 			r->type_of_coach,
 			r->ticket_price,
-			purchase,
 			(r->available ? "Yes" : "No")
 		);
 
 		free(departure);
-		free(arrival);
-		free(purchase);
 
 		r = r->next;
 	}
@@ -62,16 +56,14 @@ void file_read(struct RecordQueue* q, const char* filename) {
 		strtok(line, ",");
 		char* destination = strtok(NULL, ",");
 		char* departure_time = strtok(NULL, ",");
-		char* arrival_time = strtok(NULL, ",");
 		char* type_of_coach = strtok(NULL, ",");
 		char* price_str = strtok(NULL, ",");
 		float price = strtof(price_str, NULL);
-		char* purchase_time = strtok(NULL, ",");
 		char* available_str = strtok(NULL, ",");
 		bool available = strcmp(available_str, "Yes") == 0;
 
 		// Push the new entry to our queue
-		queue_push(q, destination, departure_time, arrival_time, type_of_coach, price, purchase_time, available);
+		queue_push(q, destination, departure_time, type_of_coach, price, available);
 	}
 
 	fclose(fp);
