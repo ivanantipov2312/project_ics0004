@@ -12,7 +12,7 @@
 // Global variables
 struct RecordQueue purchases = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct RecordQueue returns = { .head = NULL, .tail = NULL, .nextID = 1 };
-struct Timestamp current_date = { .hours = 11, .minutes = 30, .day = 1, .month = 1, .year = 1970 };
+struct Timestamp current_date = { .hours = 9, .minutes = 37, .day = 20, .month = 12, .year = 2025 };
 
 void read_record(struct RecordQueue* q) {
 	clear_buffer();
@@ -206,6 +206,8 @@ void main_loop() {
 
 // goes to main loop, returns 0 if loop is broken with input "4" in main menu
 int main() {
+	// load default sample set of available tickets
+	file_read(&purchases, "default.csv");
     main_loop();
     return 0;
 }
