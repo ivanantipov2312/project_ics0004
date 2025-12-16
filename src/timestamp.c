@@ -33,7 +33,7 @@ char* timestamp_to_string(struct Timestamp timestamp) {
 }
 
 void timestamp_print(struct Timestamp time) {
-	printf("%hhu/%hhu/%hu %hhu:%hhu", time.day, time.month, time.year, time.hours, time.minutes);
+	printf("%02hhu/%02hhu/%hu %02hhu:%02hhu", time.day, time.month, time.year, time.hours, time.minutes);
 }
 
 float timestamp_penalty(struct Timestamp current_date, struct Timestamp time_of_departure) {

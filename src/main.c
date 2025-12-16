@@ -40,7 +40,7 @@ void read_record(struct RecordQueue* q) {
 	free(passport_id);
 }
 
-void search_tickets() {
+void process_purchase() {
 	clear_buffer();
 
 	// take desired customer input for destination, date, and coach type
@@ -48,18 +48,37 @@ void search_tickets() {
 	char* departure_datetime = get_string_input("Departing (DD/MM/YYYY hh:mm): ", 18); // 16 for date + 1 for '\n' + 1 for '\0'
 	char* type_of_coach = get_string_input("Type of Coach: ", 25);
 
+	// search ticket queue for matching record
 	struct Record* match;
 	queue_search(&match, database, destination, departure_datetime, type_of_coach);
 
-	record_print(match);
+	// print matching record for validation
+	printf("\n🔵 %s\t", match->destination);
+	timestamp_print(match->departure_timestamp);
+	printf("\t%s\t%.2f\n\n", match->type_of_coach, match->ticket_price);
 
 	// confirm purchase
-	// set available to false
+	printf("1. ✅ Yes\n");
+	printf("2. ⛔ No\n");
+	printf("Confirm? ");
 
-	// enter Passport and associate it with record
-	//char* departure_datetime = get_string_input("Passport ID (CCC########): ", 12);
+	int option = get_valid_option(1, 2);
+
+	if (option == 1) {
+		match->available = false;
+	} else if (option == 2) {
+		return;
+	}
+
+	printf("\n> Ticket has been marked sold, updated to unavailable\n");
+	printf("> Please receive customer funds for %.2f\n", match->ticket_price);
+	printf("> Enter Passport ID in form of 3 letter country code + 8 digit ID code\n\n");
+
+	char* passport_id = get_string_input("Passport ID (CCC########): ", 12);
+	match->passport_id = passport_id;
 
 	// add entry to purchases queue
+	queue_push(&purchases, match->destination, departure_datetime, match->type_of_coach, match->ticket_price, false, match->passport_id);
 }
 
 // subemnus
@@ -77,7 +96,7 @@ void purchase_submenu_process() {
 			printf("Tickets: \n");
 			queue_print(database, 1);
 		} else if (option == 2) {
-			search_tickets();
+			process_purchase();
 		} else if (option == 3) {
 			break;
 		}
