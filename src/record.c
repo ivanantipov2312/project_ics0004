@@ -63,7 +63,7 @@ void record_free(struct Record* rec) {
 }
 
 void record_print(struct Record* rec) {
-	printf("%u,%s,", rec->id, rec->destination);
+	printf("▶️ %u,%s,", rec->id, rec->destination);
 	timestamp_print(rec->departure_timestamp);
 	printf(",%s,%.2f,", rec->type_of_coach, rec->ticket_price);
 	printf("%s,%s\n", (rec->available ? "Yes" : "No"), rec->passport_id);

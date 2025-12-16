@@ -1,5 +1,8 @@
 #include "queue.h"
+#include "timestamp.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // Add the item to the end
 void queue_push(struct RecordQueue* q, const char* destination, const char* departure_datetime, const char* type_of_coach, float ticket_price, bool available, const char* passport_id) {
@@ -41,7 +44,24 @@ bool queue_is_empty(struct RecordQueue q) {
 	return q.head == NULL;
 }
 
-void queue_print(struct RecordQueue q) {
+void queue_search(struct Record* match, struct RecordQueue query, const char* destination, const char* departure_datetime, const char* type_of_coach) {
+	struct Record* tmp = query.head;
+
+	struct Timestamp q_timestamp;
+	timestamp_from_string(departure_datetime, &q_timestamp);
+
+	while (tmp) {
+		if (!strcmp(tmp->destination,destination) && !timestamp_diff(tmp->departure_timestamp,q_timestamp) && !strcmp(tmp->type_of_coach,type_of_coach)) {
+			printf("Match found!\n");
+			match = tmp;
+			break;
+		} else {
+			tmp = tmp->next;
+		}
+	}
+}
+
+void queue_print(struct RecordQueue q, int options) {
 	if (!q.head) {
 		printf("No records!\n");
 		return;
@@ -49,9 +69,10 @@ void queue_print(struct RecordQueue q) {
 
 	struct Record* tmp = q.head;
 	while (tmp) {
-		record_print(tmp);
+		if (options == 0 || (options == 1 && tmp->available)) {
+			record_print(tmp);
+		}
+
 		tmp = tmp->next;
 	}
 }
-
-

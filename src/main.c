@@ -10,6 +10,7 @@
 #include "file.h"
 
 // Global variables
+struct RecordQueue database = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct RecordQueue purchases = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct RecordQueue returns = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct Timestamp current_date = { .hours = 9, .minutes = 37, .day = 20, .month = 12, .year = 2025 };
@@ -39,27 +40,46 @@ void read_record(struct RecordQueue* q) {
 	free(passport_id);
 }
 
+void search_tickets() {
+	clear_buffer();
+
+	// take desired customer input for destination, date, and coach type
+	char* destination = get_string_input("Destination: ", 60);
+	char* departure_datetime = get_string_input("Departing (DD/MM/YYYY hh:mm): ", 18); // 16 for date + 1 for '\n' + 1 for '\0'
+	char* type_of_coach = get_string_input("Type of Coach: ", 25);
+
+	//struct Record* match = (struct Record*)malloc(sizeof(struct Record));
+	struct Record* match;
+	queue_search(match, database, destination, departure_datetime, type_of_coach);
+
+	record_print(match);
+
+	// confirm purchase
+	// set available to false
+
+	// enter Passport and associate it with record
+	//char* departure_datetime = get_string_input("Passport ID (CCC########): ", 12);
+
+	// add entry to purchases queue
+}
+
 // subemnus
 void purchase_submenu_process() {
 	while (true) {
 		printf("--------PURCHASES-------\n");
-		printf("1. Put a new purchase record.\n");
-		printf("2. Drop the latest purchase record.\n");
-		printf("3. Clear the purchase records.\n");
-		printf("4. Go back to menu.\n");
+		printf("1. ℹ️ List Available\n");
+		printf("2. 💳 Enter Information\n");
+		printf("3. ↩️ Return\n");
 		printf("------------------------\n");
 
-		int option = get_valid_option(1, 4);
+		int option = get_valid_option(1, 3);
 
 		if (option == 1) {
-			read_record(&purchases);
+			printf("Tickets: \n");
+			queue_print(database, 1);
 		} else if (option == 2) {
-			queue_pop(&purchases);
-			printf("Dropped the last record!\n");
+			search_tickets();
 		} else if (option == 3) {
-			queue_clear(&purchases);
-			printf("Cleared all purchases!\n");
-		} else if (option == 4) {
 			break;
 		}
 	}
@@ -68,23 +88,15 @@ void purchase_submenu_process() {
 void return_submenu_process() {
 	while (true) {
 		printf("---------RETURNS--------\n");
-		printf("1. Put a new return record.\n");
-		printf("2. Drop the latest return record.\n");
-		printf("3. Clear the return records.\n");
-		printf("4. Go back to menu.\n");
+		printf("1. 🛂 Enter Information\n");
+		printf("2. ↩️ Return\n");
 		printf("------------------------\n");
 
-		int option = get_valid_option(1, 4);
+		int option = get_valid_option(1, 2);
 
 		if (option == 1) {
 			read_record(&returns);
 		} else if (option == 2) {
-			queue_pop(&returns);
-			printf("Dropped the last record!\n");
-		} else if (option == 3) {
-			queue_clear(&returns);
-			printf("Cleared the queue!\n");
-		} else if (option == 4) {
 			break;
 		}
 	}
@@ -93,7 +105,7 @@ void return_submenu_process() {
 void report_submenu_process() {
 	while (true) {
 		printf("----------REPORT--------\n");
-		printf("Current date is: ");
+		printf("🕛 Current date is: ");
 		timestamp_print(current_date);
 		printf("\n");
 		printf("1. List all purchase records.\n");
@@ -113,7 +125,7 @@ void report_submenu_process() {
 		int option = get_valid_option(1, 12);
 		if (option == 1) {
 			printf("Purchases: \n");
-			queue_print(purchases);
+			queue_print(purchases, 0);
 		} else if (option == 2) {
 			if (!queue_is_empty(purchases)) {
 				record_print(purchases.head);
@@ -128,7 +140,7 @@ void report_submenu_process() {
 			}
 		} else if (option == 4) {
 			printf("Returns: \n");
-			queue_print(returns);
+			queue_print(returns, 0);
 		} else if (option == 5) {
 			if (!queue_is_empty(returns)) {
 				record_print(returns.head);
@@ -143,9 +155,9 @@ void report_submenu_process() {
 			}
 		} else if (option == 7) {
 			printf("Purchases:\n");
-			queue_print(purchases);
+			queue_print(purchases, 0);
 			printf("Rerturns:\n");
-			queue_print(returns);
+			queue_print(returns, 0);
 		} else if (option == 8) {
 			queue_clear(&returns);
 			queue_clear(&purchases);
@@ -178,10 +190,10 @@ void report_submenu_process() {
 void main_loop() {
     while (true) {
 		printf("-----------MAIN---------\n");
-		printf("1. Manage purchases.\n");
-		printf("2. Manage returns.\n");
-		printf("3. Manage the current day report.\n");
-		printf("4. Quit.\n");
+		printf("1. 💲 Make Purchase\n");
+		printf("2. 🫲 Process Return\n");
+		printf("3. 📃 Admin Reporting\n");
+		printf("4. 🛑 Quit\n");
 		printf("------------------------\n");
 
         int option = get_valid_option(1, 4);
@@ -197,6 +209,7 @@ void main_loop() {
         } else if (option == 4) {
             printf("Goodbye!\n");
 			// Clean up our queues
+			queue_clear(&database);
 			queue_clear(&purchases);
 			queue_clear(&returns);
             break; // Quit the main loop
@@ -207,7 +220,7 @@ void main_loop() {
 // goes to main loop, returns 0 if loop is broken with input "4" in main menu
 int main() {
 	// load default sample set of available tickets
-	file_read(&purchases, "default.csv");
-    main_loop();
-    return 0;
+	file_read(&database, "default.csv");
+	main_loop();
+	return 0;
 }
