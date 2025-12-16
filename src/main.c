@@ -48,9 +48,8 @@ void search_tickets() {
 	char* departure_datetime = get_string_input("Departing (DD/MM/YYYY hh:mm): ", 18); // 16 for date + 1 for '\n' + 1 for '\0'
 	char* type_of_coach = get_string_input("Type of Coach: ", 25);
 
-	//struct Record* match = (struct Record*)malloc(sizeof(struct Record));
 	struct Record* match;
-	queue_search(match, database, destination, departure_datetime, type_of_coach);
+	queue_search(&match, database, destination, departure_datetime, type_of_coach);
 
 	record_print(match);
 
