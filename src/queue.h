@@ -11,7 +11,7 @@ struct RecordQueue {
 
 // Add the item to the end
 void queue_push(struct RecordQueue* q, const char* destination, const char* departure_datetime,
-		const char* type_of_coach, float ticket_price, bool available);
+		const char* type_of_coach, float ticket_price, bool available, const char* passport_id);
 
 // Delete the first item
 void queue_pop(struct RecordQueue* q);

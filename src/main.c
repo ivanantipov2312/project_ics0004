@@ -26,8 +26,9 @@ void read_record(struct RecordQueue* q) {
 	bool available;
 	char* available_str = get_string_input("Available (yes/no): ", 5);
 	available = strcmp(available_str, "yes") == 0;
+	char* passport_id = get_string_input("Passport ID: ", 20);
 
-	queue_push(q, destination, departure_datetime, type_of_coach, ticket_price, available);
+	queue_push(q, destination, departure_datetime, type_of_coach, ticket_price, available, passport_id);
 	printf("Successfully added this record to the purchases queue!\n");
 
 	free(destination);
@@ -35,6 +36,7 @@ void read_record(struct RecordQueue* q) {
 	free(type_of_coach);
 	free(ticket_price_string);
 	free(available_str);
+	free(passport_id);
 }
 
 // subemnus
