@@ -103,7 +103,7 @@ void process_return() {
 	char* departure_datetime = timestamp_to_string(match->departure_timestamp);
 
 	// add entry to returns queue
-	queue_push(&returns, match->destination, departure_datetime, match->type_of_coach, match->ticket_price, true, match->passport_id);
+	queue_push(&returns, match->destination, departure_datetime, match->type_of_coach, return_value, true, match->passport_id);
 }
 
 // subemnus
