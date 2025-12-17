@@ -72,6 +72,11 @@ void process_return() {
 	struct Record* match = NULL;
 	queue_search(&match, database, NULL, NULL, NULL, passport_id);
 
+	if (!match) {
+		printf("\n> No matching sales records located ...\n\n");
+		return;
+	}
+
 	record_print(match);
 
 	// calculate penalty
