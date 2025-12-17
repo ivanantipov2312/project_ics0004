@@ -94,8 +94,6 @@ void process_return() {
 	if (option == 1) {
 		// mark ticket available for sale again
 		match->available = true;
-		// null out Passport ID information
-		match->passport_id = "NNN00000000\0";
 	} else if (option == 2) {
 		return;
 	}
@@ -104,6 +102,9 @@ void process_return() {
 
 	// add entry to returns queue
 	queue_push(&returns, match->destination, departure_datetime, match->type_of_coach, return_value, true, match->passport_id);
+
+	// null out Passport ID information
+	match->passport_id = "NNN00000000\0";
 }
 
 // subemnus
