@@ -58,7 +58,6 @@ void process_purchase() {
 	free(destination);
 	free(departure_datetime);
 	free(type_of_coach);
-	free(passport_id);
 }
 
 void process_return() {
@@ -93,8 +92,6 @@ void process_return() {
 
 	// add entry to returns queue
 	//queue_push(&returns, match->destination, departure_datetime, match->type_of_coach, match->ticket_price, true, match->passport_id);
-
-	free(passport_id);
 }
 
 // subemnus
