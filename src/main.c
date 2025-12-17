@@ -27,6 +27,11 @@ void process_purchase() {
 	struct Record* match = NULL;
 	queue_search(&match, database, destination, departure_datetime, type_of_coach, NULL);
 
+	if (!match) {
+		printf("\n> No matching tickets available ...\n\n");
+		return;
+	}
+
 	// print matching record for validation
 	printf("\n🔵 %s\t", match->destination);
 	timestamp_print(match->departure_timestamp);
@@ -73,7 +78,7 @@ void process_return() {
 	float penalty = timestamp_penalty(current_date, match->departure_timestamp);
 	float return_value = match->ticket_price - (match->ticket_price * penalty);
 
-	printf("> Customer is entitled to a return of %.2f\n\n", return_value);
+	printf("\n> Customer is entitled to a return of %.2f\n\n", return_value);
 
 	printf("1. ✅ Yes\n");
 	printf("2. ⛔ No\n");

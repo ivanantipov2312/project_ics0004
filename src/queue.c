@@ -61,7 +61,7 @@ void queue_search(struct Record** match, struct RecordQueue query, const char* d
 		timestamp_from_string(departure_datetime, &q_timestamp);
 
 		while (tmp) {
-			if (!strcmp(tmp->destination,destination) && !timestamp_diff(tmp->departure_timestamp,q_timestamp) && !strcmp(tmp->type_of_coach,type_of_coach)) {
+			if (!strcmp(tmp->destination,destination) && !timestamp_diff(tmp->departure_timestamp,q_timestamp) && !strcmp(tmp->type_of_coach,type_of_coach) && tmp->available) {
 				*match = tmp;
 				break;
 			} else {
