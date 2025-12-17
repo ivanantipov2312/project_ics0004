@@ -103,7 +103,7 @@ void purchase_submenu_process() {
 		printf("--------PURCHASES-------\n");
 		printf("1. ℹ️ List Available\n");
 		printf("2. 💳 Enter Information\n");
-		printf("3. ↩️ Return\n");
+		printf("3. ↩️ Back\n");
 		printf("------------------------\n");
 
 		int option = get_valid_option(1, 3);
@@ -123,7 +123,7 @@ void return_submenu_process() {
 	while (true) {
 		printf("---------RETURNS--------\n");
 		printf("1. 🛂 Enter Information\n");
-		printf("2. ↩️ Return\n");
+		printf("2. ↩️ Back\n");
 		printf("------------------------\n");
 
 		int option = get_valid_option(1, 2);
@@ -153,7 +153,7 @@ void report_submenu_process() {
 		printf("9. Set current date.\n");
 		printf("10. Save the report to a file.\n");
 		printf("11. Read the report from a file.\n");
-		printf("12. Go back to menu.\n");
+		printf("12. Back\n");
 		printf("------------------------\n");
 
 		int option = get_valid_option(1, 12);
