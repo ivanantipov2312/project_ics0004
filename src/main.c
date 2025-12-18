@@ -13,7 +13,7 @@
 struct RecordQueue database = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct RecordQueue purchases = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct RecordQueue returns = { .head = NULL, .tail = NULL, .nextID = 1 };
-struct Timestamp current_date = { .hours = 9, .minutes = 37, .day = 20, .month = 12, .year = 2025 };
+struct Timestamp current_date = { .hours = 9, .minutes = 37, .day = 28, .month = 9, .year = 2025 };
 
 void process_purchase() {
 	clear_buffer();
