@@ -10,58 +10,120 @@
 #include "file.h"
 
 // Global variables
+struct RecordQueue database = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct RecordQueue purchases = { .head = NULL, .tail = NULL, .nextID = 1 };
 struct RecordQueue returns = { .head = NULL, .tail = NULL, .nextID = 1 };
-struct Timestamp current_date = { .hours = 11, .minutes = 30, .day = 1, .month = 1, .year = 1970 };
+struct Timestamp current_date = { .hours = 9, .minutes = 37, .day = 28, .month = 9, .year = 2025 };
 
-void read_record(struct RecordQueue* q) {
+void process_purchase() {
 	clear_buffer();
 
-	// Read all the fields
+	// take desired customer input for destination, date, and coach type
 	char* destination = get_string_input("Destination: ", 60);
 	char* departure_datetime = get_string_input("Departing (DD/MM/YYYY hh:mm): ", 18); // 16 for date + 1 for '\n' + 1 for '\0'
-	char* arrival_datetime = get_string_input("Arrving (DD/MM/YYYY hh:mm): ", 18);
 	char* type_of_coach = get_string_input("Type of Coach: ", 25);
-	char* ticket_price_string = get_string_input("Price: ", 6); // Safer than using scanf("%f",...);
-	float ticket_price = strtof(ticket_price_string, NULL);
-	char* purchase_datetime = get_string_input("Purchase Time (DD/MM/YYYY hh:mm): ", 18);
-	bool available;
-	char* available_str = get_string_input("Available (yes/no): ", 5);
-	available = strcmp(available_str, "yes") == 0;
 
-	queue_push(q, destination, departure_datetime, arrival_datetime, type_of_coach, ticket_price, purchase_datetime, available);
-	printf("Successfully added this record to the purchases queue!\n");
+	// search ticket queue for matching record
+	struct Record* match = NULL;
+	queue_search(&match, database, destination, departure_datetime, type_of_coach, NULL);
+
+	if (!match) {
+		printf("\n> No matching tickets available ...\n\n");
+		return;
+	}
+
+	// print matching record for validation
+	printf("\n🔵 %s\t", match->destination);
+	timestamp_print(match->departure_timestamp);
+	printf("\t%s\t%.2f\n\n", match->type_of_coach, match->ticket_price);
+
+	// confirm purchase
+	printf("1. ✅ Yes\n");
+	printf("2. ⛔ No\n");
+	printf("Confirm? ");
+
+	int option = get_valid_option(1, 2);
+
+	if (option == 1) {
+		match->available = false;
+	} else if (option == 2) {
+		return;
+	}
+
+	printf("\n> Ticket has been marked sold, updated to unavailable\n");
+	printf("> Please receive customer funds for %.2f\n", match->ticket_price);
+	printf("> Enter Passport ID in form of 3 letter country code + 8 digit ID code\n\n");
+
+	char* passport_id = get_string_input("Passport ID (CCC########): ", 12);
+	match->passport_id = passport_id;
+
+	// add entry to purchases queue
+	queue_push(&purchases, match->destination, departure_datetime, match->type_of_coach, match->ticket_price, false, match->passport_id);
 
 	free(destination);
 	free(departure_datetime);
-	free(arrival_datetime);
 	free(type_of_coach);
-	free(ticket_price_string);
-	free(purchase_datetime);
-	free(available_str);
+}
+
+void process_return() {
+	char* passport_id = get_string_input("Passport ID (CCC########): ", 12);
+
+	// search ticket queue for matching record
+	struct Record* match = NULL;
+	queue_search(&match, database, NULL, NULL, NULL, passport_id);
+
+	if (!match) {
+		printf("\n> No matching sales records located ...\n\n");
+		return;
+	}
+
+	record_print(match);
+
+	// calculate penalty
+	float penalty = timestamp_penalty(current_date, match->departure_timestamp);
+	float return_value = match->ticket_price - (match->ticket_price * penalty);
+
+	printf("\n> Customer is entitled to a return of %.2f\n\n", return_value);
+
+	printf("1. ✅ Yes\n");
+	printf("2. ⛔ No\n");
+	printf("Confirm? ");
+
+	int option = get_valid_option(1, 2);
+
+	if (option == 1) {
+		// mark ticket available for sale again
+		match->available = true;
+	} else if (option == 2) {
+		return;
+	}
+
+	char* departure_datetime = timestamp_to_string(match->departure_timestamp);
+
+	// add entry to returns queue
+	queue_push(&returns, match->destination, departure_datetime, match->type_of_coach, return_value, true, match->passport_id);
+
+	// null out Passport ID information
+	match->passport_id = "NNN00000000\0";
 }
 
 // subemnus
 void purchase_submenu_process() {
 	while (true) {
 		printf("--------PURCHASES-------\n");
-		printf("1. Put a new purchase record.\n");
-		printf("2. Drop the latest purchase record.\n");
-		printf("3. Clear the purchase records.\n");
-		printf("4. Go back to menu.\n");
+		printf("1. ℹ️ List Available\n");
+		printf("2. 💳 Enter Information\n");
+		printf("3. ↩️ Back\n");
 		printf("------------------------\n");
 
-		int option = get_valid_option(1, 4);
+		int option = get_valid_option(1, 3);
 
 		if (option == 1) {
-			read_record(&purchases);
+			printf("Tickets: \n");
+			queue_print(database, 1);
 		} else if (option == 2) {
-			queue_pop(&purchases);
-			printf("Dropped the last record!\n");
+			process_purchase();
 		} else if (option == 3) {
-			queue_clear(&purchases);
-			printf("Cleared all purchases!\n");
-		} else if (option == 4) {
 			break;
 		}
 	}
@@ -70,23 +132,15 @@ void purchase_submenu_process() {
 void return_submenu_process() {
 	while (true) {
 		printf("---------RETURNS--------\n");
-		printf("1. Put a new return record.\n");
-		printf("2. Drop the latest return record.\n");
-		printf("3. Clear the return records.\n");
-		printf("4. Go back to menu.\n");
+		printf("1. 🛂 Enter Information\n");
+		printf("2. ↩️ Back\n");
 		printf("------------------------\n");
 
-		int option = get_valid_option(1, 4);
+		int option = get_valid_option(1, 2);
 
 		if (option == 1) {
-			read_record(&returns);
+			process_return();
 		} else if (option == 2) {
-			queue_pop(&returns);
-			printf("Dropped the last record!\n");
-		} else if (option == 3) {
-			queue_clear(&returns);
-			printf("Cleared the queue!\n");
-		} else if (option == 4) {
 			break;
 		}
 	}
@@ -95,7 +149,7 @@ void return_submenu_process() {
 void report_submenu_process() {
 	while (true) {
 		printf("----------REPORT--------\n");
-		printf("Current date is: ");
+		printf("🕛 Current date is: ");
 		timestamp_print(current_date);
 		printf("\n");
 		printf("1. List all purchase records.\n");
@@ -109,13 +163,13 @@ void report_submenu_process() {
 		printf("9. Set current date.\n");
 		printf("10. Save the report to a file.\n");
 		printf("11. Read the report from a file.\n");
-		printf("12. Go back to menu.\n");
+		printf("12. Back\n");
 		printf("------------------------\n");
 
 		int option = get_valid_option(1, 12);
 		if (option == 1) {
 			printf("Purchases: \n");
-			queue_print(purchases);
+			queue_print(purchases, 0);
 		} else if (option == 2) {
 			if (!queue_is_empty(purchases)) {
 				record_print(purchases.head);
@@ -130,7 +184,7 @@ void report_submenu_process() {
 			}
 		} else if (option == 4) {
 			printf("Returns: \n");
-			queue_print(returns);
+			queue_print(returns, 0);
 		} else if (option == 5) {
 			if (!queue_is_empty(returns)) {
 				record_print(returns.head);
@@ -145,9 +199,9 @@ void report_submenu_process() {
 			}
 		} else if (option == 7) {
 			printf("Purchases:\n");
-			queue_print(purchases);
-			printf("Rerturns:\n");
-			queue_print(returns);
+			queue_print(purchases, 0);
+			printf("Returns:\n");
+			queue_print(returns, 0);
 		} else if (option == 8) {
 			queue_clear(&returns);
 			queue_clear(&purchases);
@@ -180,10 +234,10 @@ void report_submenu_process() {
 void main_loop() {
     while (true) {
 		printf("-----------MAIN---------\n");
-		printf("1. Manage purchases.\n");
-		printf("2. Manage returns.\n");
-		printf("3. Manage the current day report.\n");
-		printf("4. Quit.\n");
+		printf("1. 💲 Make Purchase\n");
+		printf("2. 🫲 Process Return\n");
+		printf("3. 📃 Admin Reporting\n");
+		printf("4. 🛑 Quit\n");
 		printf("------------------------\n");
 
         int option = get_valid_option(1, 4);
@@ -199,6 +253,7 @@ void main_loop() {
         } else if (option == 4) {
             printf("Goodbye!\n");
 			// Clean up our queues
+			queue_clear(&database);
 			queue_clear(&purchases);
 			queue_clear(&returns);
             break; // Quit the main loop
@@ -208,6 +263,8 @@ void main_loop() {
 
 // goes to main loop, returns 0 if loop is broken with input "4" in main menu
 int main() {
-    main_loop();
-    return 0;
+	// load default sample set of available tickets
+	file_read(&database, "default.csv");
+	main_loop();
+	return 0;
 }
